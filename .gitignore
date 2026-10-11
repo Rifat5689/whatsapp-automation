@@ -1,0 +1,7 @@
+node_modules/
+frontend/dist/
+backend/uploads/*
+!backend/uploads/.gitkeep
+.env
+data/uploads/
+*.log

@@ -1,0 +1,115 @@
+name: Deploy backend to production
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/backend-production.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Test and deploy backend
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 30
+    env:
+      AWS_REGION: ap-southeast-2
+      EB_APPLICATION: rifat-ai-backend
+      EB_ENVIRONMENT: rifat-ai-backend-prod
+      DEPLOYMENT_BUCKET: elasticbeanstalk-ap-southeast-2-497746198174
+      DEPLOYMENT_PREFIX: rifat-ai-deployments
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run backend tests
+        run: npm test --workspace backend
+
+      - name: Package backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION_LABEL="backend-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${GITHUB_SHA::7}"
+          ARTIFACT="${RUNNER_TEMP}/${VERSION_LABEL}.zip"
+          (
+            cd backend
+            zip -q -r "$ARTIFACT" package.json src
+          )
+          test "$(zipinfo -1 "$ARTIFACT" | grep -c '^package.json$')" -eq 1
+          if zipinfo -1 "$ARTIFACT" | grep -Eq '(^|/)(\.env($|\.)|node_modules/|tests/)|(^|/)(credentials|config)\.json$'; then
+            echo 'Deployment ZIP contains a prohibited file.' >&2
+            exit 1
+          fi
+          echo "VERSION_LABEL=$VERSION_LABEL" >> "$GITHUB_ENV"
+          echo "ARTIFACT=$ARTIFACT" >> "$GITHUB_ENV"
+          echo "S3_KEY=${DEPLOYMENT_PREFIX}/${VERSION_LABEL}.zip" >> "$GITHUB_ENV"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload deployment bundle
+        run: aws s3 cp "$ARTIFACT" "s3://${DEPLOYMENT_BUCKET}/${S3_KEY}" --only-show-errors
+
+      - name: Create Elastic Beanstalk version
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name "$EB_APPLICATION" \
+            --version-label "$VERSION_LABEL" \
+            --description "GitHub ${GITHUB_SHA}" \
+            --source-bundle "S3Bucket=${DEPLOYMENT_BUCKET},S3Key=${S3_KEY}"
+
+      - name: Deploy application version
+        run: |
+          aws elasticbeanstalk update-environment \
+            --environment-name "$EB_ENVIRONMENT" \
+            --version-label "$VERSION_LABEL"
+          aws elasticbeanstalk wait environment-updated \
+            --environment-names "$EB_ENVIRONMENT"
+
+      - name: Verify deployed version and health
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in {1..30}; do
+            read -r RUNNING_VERSION STATUS HEALTH CNAME < <(
+              aws elasticbeanstalk describe-environments \
+                --environment-names "$EB_ENVIRONMENT" \
+                --query 'Environments[0].[VersionLabel,Status,Health,CNAME]' \
+                --output text
+            )
+            if [[ "$RUNNING_VERSION" == "$VERSION_LABEL" && "$STATUS" == "Ready" && "$HEALTH" == "Green" ]]; then
+              break
+            fi
+            if [[ "$attempt" == "30" ]]; then
+              echo "Expected version did not become Ready/Green." >&2
+              exit 1
+            fi
+            sleep 10
+          done
+          curl --fail --silent --show-error --retry 10 --retry-delay 10 --retry-all-errors \
+            "http://${CNAME}/api/v1/health" | jq -e '.status == "ok" and .database == "connected"'

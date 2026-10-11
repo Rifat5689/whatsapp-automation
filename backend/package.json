@@ -1,1 +1,27 @@
-{"name":"@rifat-ai/backend","private":true,"version":"0.1.0","type":"module","scripts":{"dev":"node --watch src/index.js","start":"node src/index.js","test":"node --test","hash-password":"node src/hash-password.js"},"dependencies":{"express":"latest","helmet":"latest","jose":"latest","multer":"latest","sharp":"latest"}}
+{
+  "name": "@rifat-ai/backend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": "24.x",
+    "npm": ">=11"
+  },
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test",
+    "hash-password": "node src/hash-password.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "dotenv": "^17.2.3",
+    "helmet": "^8.3.0",
+    "jose": "^6.2.12",
+    "multer": "^2.4.0",
+    "mongoose": "^9.1.5",
+    "sharp": "^0.35.5"
+  }
+}

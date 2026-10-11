@@ -18,7 +18,7 @@ Record meaningful project decisions only.
 
 ### Hosting
 - Frontend target: AWS S3 + CloudFront.
-- Backend target: AWS App Runner.
+- Backend target: AWS Elastic Beanstalk using its Node.js 24 Amazon Linux 2023 platform.
 - Photo storage target: private Amazon S3.
 
 ### Integrations

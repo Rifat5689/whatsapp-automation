@@ -3,5 +3,6 @@ frontend/dist/
 backend/uploads/*
 !backend/uploads/.gitkeep
 .env
+**/.env
 data/uploads/
 *.log

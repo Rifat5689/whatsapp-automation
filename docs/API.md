@@ -28,3 +28,5 @@ Rules:
 - Avoid mass assignment.
 - Do not create endpoints before the related feature exists.
 - Add webhook endpoints only when the integration is implemented.
+
+Owner login uses `POST /auth/login` with a server-configured `username` and `password`; credentials must never be stored in frontend configuration or source control.

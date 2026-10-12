@@ -12,7 +12,6 @@ import { SignJWT, jwtVerify } from 'jose';
 import { aiAdapter, messagingAdapter } from './adapters/index.js';
 import { db, log } from './store.js';
 import { detectPhotoRequest, id, now, photoDecision, safeContact } from './domain.js';
-import { hashPassword, verifyPassword } from './hash-password.js';
 import { saveState } from './services/state-persistence.service.js';
 import { env } from './config/env.js';
 import { router as authRouter } from './routes/auth.routes.js';
@@ -28,7 +27,7 @@ export function createApp() {
   app.use(cors({ origin: env.frontendOrigin, credentials: true }));
   app.use(express.json({ limit: '100kb' }));
   app.use(cookieParser());
-  if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || !process.env.OWNER_PASSWORD_HASH)) throw new Error('Production authentication secrets are required');
+  if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || !process.env.OWNER_USERNAME || !process.env.OWNER_PASSWORD)) throw new Error('Production authentication secrets are required');
   const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'local-development-secret-change-me');
   const auth = async (req, res, next) => {
     try { const token = req.headers.authorization?.replace(/^Bearer /, ''); const { payload } = await jwtVerify(token, secret); if (payload.sub !== db.ownerId) throw new Error(); req.ownerId = payload.sub; next(); }

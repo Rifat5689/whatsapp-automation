@@ -20,6 +20,7 @@
 - [x] Mock Messaging Integration
 - [x] Azure App Service Production Deployment Workflow
 - [x] Firebase Hosting Frontend Production Deployment Workflow
+- [x] Simplified Environment-Based Owner Login
 - [ ] Azure Staging Deployment
 - [ ] Production S3 Photo Storage
 - [ ] Meta WhatsApp Cloud API Integration

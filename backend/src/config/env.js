@@ -5,8 +5,8 @@ const env = Object.freeze({
   port: Number(optional('PORT', '3001')),
   frontendOrigin: optional('FRONTEND_ORIGIN', 'http://localhost:5173'),
   mongodbUri: optional('MONGODB_URI'),
-  ownerEmail: optional('OWNER_EMAIL', 'owner@example.com'),
-  ownerPasswordHash: optional('OWNER_PASSWORD_HASH'),
+  ownerUsername: optional('OWNER_USERNAME', 'owner'),
+  ownerPassword: optional('OWNER_PASSWORD', 'local-demo-only'),
   jwtSecret: optional('JWT_SECRET'),
   aiProvider: optional('AI_PROVIDER', 'mock'),
   openaiApiKey: optional('OPENAI_API_KEY'),
@@ -33,7 +33,7 @@ const requireValues = (names) => {
 
 const validateEnv = () => {
   if (!Number.isInteger(env.port) || env.port < 1 || env.port > 65535) throw new Error('PORT must be a valid TCP port');
-  if (env.nodeEnv === 'production') requireValues(['MONGODB_URI', 'OWNER_EMAIL', 'OWNER_PASSWORD_HASH', 'JWT_SECRET', 'FRONTEND_ORIGIN']);
+  if (env.nodeEnv === 'production') requireValues(['MONGODB_URI', 'OWNER_USERNAME', 'OWNER_PASSWORD', 'JWT_SECRET', 'FRONTEND_ORIGIN']);
   if (env.aiProvider === 'openai') requireValues(['OPENAI_API_KEY', 'OPENAI_MODEL']);
   if (env.aiProvider === 'anthropic') requireValues(['ANTHROPIC_API_KEY', 'ANTHROPIC_MODEL']);
   if (env.messagingProvider === 'meta') requireValues(['META_WHATSAPP_ACCESS_TOKEN', 'META_WHATSAPP_PHONE_NUMBER_ID', 'META_WHATSAPP_BUSINESS_ACCOUNT_ID', 'META_APP_SECRET', 'META_WEBHOOK_VERIFY_TOKEN']);

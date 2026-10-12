@@ -1,2 +1,18 @@
-import{useState}from'react';import{Navigate}from'react-router-dom';import{useApp}from'../../hooks/useApp.jsx';
-export default function LoginPage(){const{authenticated,login}=useApp();const[email,setEmail]=useState('owner@example.com');const[password,setPassword]=useState('local-demo-only');const[error,setError]=useState('');if(authenticated)return <Navigate to="/conversations" replace/>;return <main className="login"><form onSubmit={async e=>{e.preventDefault();try{await login(email,password)}catch(err){setError(err.message)}}}><div className="brand">● RIFAT.AI</div><h1>Owner sign in</h1><label>Email<input value={email} onChange={e=>setEmail(e.target.value)}/></label><label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)}/></label>{error&&<p className="error">{error}</p>}<button>Sign in</button></form></main>}
+import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useApp } from '../../hooks/useApp.jsx';
+
+export default function LoginPage() {
+  const { authenticated, login } = useApp();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  if (authenticated) return <Navigate to="/conversations" replace />;
+
+  return <main className="login"><form onSubmit={async (event) => {
+    event.preventDefault();
+    try { await login(username, password); }
+    catch (caught) { setError(caught.message); }
+  }}><div className="brand">● RIFAT.AI</div><h1>Owner sign in</h1><label>Username<input autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} /></label><label>Password<input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>{error && <p className="error">{error}</p>}<button>Sign in</button></form></main>;
+}

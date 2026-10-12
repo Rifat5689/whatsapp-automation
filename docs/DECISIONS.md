@@ -31,6 +31,7 @@ Record meaningful project decisions only.
 - Work feature-by-feature.
 - Current Git workflow may use direct work on `main` unless changed later.
 - External/manual setup is documented in `MANUAL_STEPS.md`.
+- Single-owner login credentials are supplied only through server-side environment variables.
 
 ### Privacy
 - Backend rules override AI decisions.

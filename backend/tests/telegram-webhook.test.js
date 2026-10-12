@@ -27,6 +27,7 @@ test('Telegram webhook stores a new sender using the configured default mode', a
   assert.equal(contact?.telegramUsername, 'telegram_test');
   assert.equal(contact?.mode, 'AI Approval');
   assert.equal(contact?.aiEnabled, true);
+  assert.equal(contact?.telegramDefaultModeApplied, true);
   assert.equal(db.messages.some((item) => item.providerMessageId === 'telegram-300-200' && item.contactId === contact.id), true);
 });
 

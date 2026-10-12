@@ -24,6 +24,7 @@
 - [x] Production Cloudflare R2 Photo Storage
 - [x] Telegram Bot API Text Integration
 - [x] Bidirectional Telegram Conversation Flow
+- [x] Telegram Contact Default-Mode Migration and AI Failure Tracking
 - [ ] Telegram Photo Delivery
 - [x] Feature-Branch Workflow and Local/Production CORS Configuration
 - [x] OpenRouter Free-Model Routing with Gemini Fallback

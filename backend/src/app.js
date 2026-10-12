@@ -56,7 +56,9 @@ export function createApp() {
       if (!decision.allowed) return { incoming, action: 'blocked', reason: decision.reason };
       const sent = await messagingAdapter.send({ content: 'Here is the photo you asked for.', photoId: photo.id, chatId: contact.telegramChatId }); const message = { id: id(), conversationId, contactId: contact.id, direction: 'out', type: 'image', content: sent.content, photoId: photo.id, senderType: 'ai', createdAt: now(), ...sent }; db.messages.push(message); log('photo.sent', photo.filename, contact.id); await saveState(); return { incoming, action: 'sent', message };
     }
-    const reply = await aiAdapter.generateReply({ message: incoming.content, contact, personalization: db.personalization, configuration: db.ai });
+    let reply;
+    try { reply = await aiAdapter.generateReply({ message: incoming.content, contact, personalization: db.personalization, configuration: db.ai }); }
+    catch (error) { log('ai.failed', `Provider request failed${error.status ? ` (${error.status})` : ''}`, contact.id); await saveState(); return { incoming, action: 'failed' }; }
     if (contact.mode === 'AI Approval') { const approval = { id: id(), ownerId: db.ownerId, contactId: contact.id, conversationId, type: 'text', draft: reply, reason: 'Conversation mode requires approval', status: 'pending', createdAt: now() }; db.approvals.push(approval); log('approval.created', approval.reason, contact.id); await saveState(); return { incoming, action: 'approval', approval }; }
     const sent = await messagingAdapter.send({ content: reply, chatId: contact.telegramChatId }); const message = { id: id(), conversationId, contactId: contact.id, direction: 'out', type: 'text', content: reply, senderType: 'ai', createdAt: now(), ...sent }; db.messages.push(message); log('message.sent', reply, contact.id); await saveState(); return { incoming, action: 'sent', message };
   };
@@ -77,7 +79,7 @@ export function createApp() {
       if (!contact) {
         const displayName = [message.from?.first_name, message.from?.last_name].filter(Boolean).join(' ').trim() || message.from?.username || `Telegram ${chatId}`;
         const mode = ['AI Auto', 'AI Approval', 'Manual'].includes(db.settings.defaultMode) ? db.settings.defaultMode : 'AI Approval';
-        contact = { id: id(), ownerId: db.ownerId, name: displayName.slice(0, 80), phone: '', telegramChatId: chatId, telegramUsername: String(message.from?.username || '').slice(0, 64), relationship: 'Unknown', language: 'Natural', communicationStyle: 'Polite and brief', aiEnabled: mode !== 'Manual', mode, memoryPermissions: false, photoPermissions: false, humanTakeover: false, notes: 'Created from Telegram.' };
+        contact = { id: id(), ownerId: db.ownerId, name: displayName.slice(0, 80), phone: '', telegramChatId: chatId, telegramUsername: String(message.from?.username || '').slice(0, 64), telegramDefaultModeApplied: true, relationship: 'Unknown', language: 'Natural', communicationStyle: 'Polite and brief', aiEnabled: mode !== 'Manual', mode, memoryPermissions: false, photoPermissions: false, humanTakeover: false, notes: 'Created from Telegram.' };
         db.contacts.push(contact); db.conversations.push({ id: `conv-${contact.id}`, ownerId: db.ownerId, contactId: contact.id, mode: contact.mode, humanTakeover: false }); log('contact.created.telegram', contact.name, contact.id);
       }
       await processIncoming({ contact, content: message.text.trim(), providerMessageId: `telegram-${chatId}-${message.message_id}`, simulated: false });

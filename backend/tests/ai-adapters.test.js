@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { AIProviderRouter, GeminiAIAdapter, OpenRouterAIAdapter } from '../src/adapters/index.js';
+import { AIProviderRouter, GeminiAIAdapter, OpenRouterAIAdapter, TelegramMessagingAdapter } from '../src/adapters/index.js';
 
 const payload = { message: 'Hello', contact: { language: 'English', communicationStyle: 'Friendly', relationship: 'Friend' }, personalization: {} };
 
@@ -31,4 +31,18 @@ test('provider router falls back to the secondary provider', async () => {
   const router = new AIProviderRouter({ adapters });
   const configuration = { primary: { provider: 'broken', enabled: true }, fallback: { provider: 'working', enabled: true } };
   assert.equal(await router.generateReply({ ...payload, configuration }), 'Safe fallback');
+});
+
+test('Telegram sends text only to the linked chat', async () => {
+  let request;
+  const adapter = new TelegramMessagingAdapter({ botToken: 'test-token', fetchImpl: async (url, options) => { request = { url, body: JSON.parse(options.body) }; return new Response(JSON.stringify({ ok: true, result: { message_id: 42 } }), { status: 200 }); } });
+  const result = await adapter.send({ chatId: '12345', content: 'Hello from RIFAT.AI' });
+  assert.equal(request.url, 'https://api.telegram.org/bottest-token/sendMessage');
+  assert.deepEqual(request.body, { chat_id: '12345', text: 'Hello from RIFAT.AI' });
+  assert.deepEqual(result, { content: 'Hello from RIFAT.AI', providerMessageId: '42', deliveryStatus: 'sent', simulated: false });
+});
+
+test('Telegram refuses to send without a linked chat', async () => {
+  const adapter = new TelegramMessagingAdapter({ botToken: 'test-token' });
+  await assert.rejects(() => adapter.send({ content: 'Hello' }), /not linked/);
 });

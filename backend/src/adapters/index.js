@@ -68,5 +68,18 @@ export class AIProviderRouter {
 }
 
 export class MockMessagingAdapter { async send(payload) { return { providerMessageId: `mock-${crypto.randomUUID()}`, deliveryStatus: 'sent', simulated: true, ...payload }; } }
+
+export class TelegramMessagingAdapter {
+  constructor({ botToken = env.telegramBotToken, fetchImpl = globalThis.fetch } = {}) { Object.assign(this, { botToken, fetchImpl }); }
+  async send({ content, chatId }) {
+    if (!this.botToken) throw new Error('Telegram is not configured');
+    if (!chatId) throw new Error('Telegram chat is not linked to this contact');
+    const data = await requestJson(`https://api.telegram.org/bot${this.botToken}/sendMessage`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ chat_id: chatId, text: String(content || '').slice(0, 4096) }) }, this.fetchImpl);
+    if (!data.ok || !data.result?.message_id) throw new Error('Telegram rejected the message');
+    return { content, providerMessageId: String(data.result.message_id), deliveryStatus: 'sent', simulated: false };
+  }
+}
+
+export const createMessagingAdapter = (provider = env.messagingProvider) => provider === 'telegram' ? new TelegramMessagingAdapter() : new MockMessagingAdapter();
 export const aiAdapter = new AIProviderRouter();
-export const messagingAdapter = new MockMessagingAdapter();
+export const messagingAdapter = createMessagingAdapter();

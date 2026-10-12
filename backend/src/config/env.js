@@ -13,11 +13,8 @@ const env = Object.freeze({
   geminiApiKey: optional('GEMINI_API_KEY'),
   geminiModels: optional('GEMINI_MODELS').split(',').map((model) => model.trim()).filter(Boolean),
   messagingProvider: optional('MESSAGING_PROVIDER', 'mock'),
-  metaAccessToken: optional('META_WHATSAPP_ACCESS_TOKEN'),
-  metaPhoneNumberId: optional('META_WHATSAPP_PHONE_NUMBER_ID'),
-  metaBusinessAccountId: optional('META_WHATSAPP_BUSINESS_ACCOUNT_ID'),
-  metaAppSecret: optional('META_APP_SECRET'),
-  metaWebhookVerifyToken: optional('META_WEBHOOK_VERIFY_TOKEN'),
+  telegramBotToken: optional('TELEGRAM_BOT_TOKEN'),
+  telegramWebhookSecret: optional('TELEGRAM_WEBHOOK_SECRET'),
   storageProvider: optional('STORAGE_PROVIDER', 'local'),
   cloudStorageAccountId: optional('CLOUD_STORAGE_ACCOUNT_ID'),
   cloudStorageAccessKey: optional('CLOUD_STORAGE_ACCESS_KEY'),
@@ -33,7 +30,11 @@ const requireValues = (names) => {
 const validateEnv = () => {
   if (!Number.isInteger(env.port) || env.port < 1 || env.port > 65535) throw new Error('PORT must be a valid TCP port');
   if (env.nodeEnv === 'production') requireValues(['MONGODB_URI', 'OWNER_USERNAME', 'OWNER_PASSWORD', 'JWT_SECRET', 'FRONTEND_ORIGIN']);
-  if (env.messagingProvider === 'meta') requireValues(['META_WHATSAPP_ACCESS_TOKEN', 'META_WHATSAPP_PHONE_NUMBER_ID', 'META_WHATSAPP_BUSINESS_ACCOUNT_ID', 'META_APP_SECRET', 'META_WEBHOOK_VERIFY_TOKEN']);
+  if (!['mock', 'telegram'].includes(env.messagingProvider)) throw new Error('MESSAGING_PROVIDER must be mock or telegram');
+  if (env.messagingProvider === 'telegram') {
+    requireValues(['TELEGRAM_BOT_TOKEN', 'TELEGRAM_WEBHOOK_SECRET']);
+    if (!/^[A-Za-z0-9_-]{1,256}$/.test(env.telegramWebhookSecret)) throw new Error('TELEGRAM_WEBHOOK_SECRET has an invalid format');
+  }
   if (!['local', 'r2'].includes(env.storageProvider)) throw new Error('STORAGE_PROVIDER must be local or r2');
   if (env.storageProvider === 'r2') requireValues(['CLOUD_STORAGE_ACCOUNT_ID', 'CLOUD_STORAGE_ACCESS_KEY', 'CLOUD_STORAGE_SECRET_KEY', 'CLOUD_STORAGE_BUCKET']);
   return env;

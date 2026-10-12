@@ -22,8 +22,8 @@ Record meaningful project decisions only.
 - Photo storage target: private Cloudflare R2 accessed through its S3-compatible API.
 
 ### Integrations
-- WhatsApp production transport: official Meta WhatsApp Cloud API.
-- Use mock messaging before Meta credentials are configured.
+- Telegram Bot API is the production messaging transport.
+- Use mock messaging before Telegram credentials and its webhook are configured.
 - Use provider adapters for messaging, storage, and AI integrations where useful.
 - AI generation uses OpenRouter for free-model routing, with direct Gemini and Mock adapters available as controlled fallbacks.
 

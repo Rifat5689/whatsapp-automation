@@ -22,7 +22,8 @@
 - [x] Firebase Hosting Frontend Production Deployment Workflow
 - [x] Simplified Environment-Based Owner Login
 - [x] Production Cloudflare R2 Photo Storage
-- [ ] Meta WhatsApp Cloud API Integration
+- [x] Telegram Bot API Text Integration
+- [ ] Telegram Photo Delivery
 - [x] Feature-Branch Workflow and Local/Production CORS Configuration
 - [x] OpenRouter Free-Model Routing with Gemini Fallback
 - [x] Conversation Composer AI Flow

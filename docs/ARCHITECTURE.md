@@ -6,8 +6,8 @@ Use a simple modular monolith.
 React frontend → Node/Express API → MongoDB Atlas
 
 ## Production Target
-- Frontend: AWS S3 + CloudFront
-- Backend: AWS App Runner
+- Frontend: Firebase Hosting
+- Backend: Azure App Service
 - Personal photos: private Amazon S3
 - Database: MongoDB Atlas
 - WhatsApp: Meta WhatsApp Cloud API

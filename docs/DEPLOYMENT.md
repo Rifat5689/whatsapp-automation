@@ -6,8 +6,8 @@
 - production
 
 ## Current Target
-- Frontend: AWS S3 + CloudFront
-- Backend: AWS Elastic Beanstalk (`rifat-ai-backend-prod`, `ap-southeast-2`)
+- Frontend: Firebase Hosting (`whatsapp-automation-9e865`)
+- Backend: Azure App Service (Linux, Node.js 24)
 - Database: MongoDB Atlas
 - Personal media: private Amazon S3
 - Messaging: Meta WhatsApp Cloud API
@@ -24,4 +24,6 @@ Actual manual cloud/dashboard setup belongs in `MANUAL_STEPS.md`.
 
 ## Backend production automation
 
-Pushes to `main` that change backend deployment files run `.github/workflows/backend-production.yml`. The workflow tests with Node.js 24, creates a backend-only ZIP, publishes an immutable Elastic Beanstalk application version, waits for completion, and verifies `/api/v1/health`.
+Pushes to `main` that change backend deployment files run `.github/workflows/backend-production.yml`. The workflow tests with Node.js 24, creates a backend-only ZIP, deploys it to Azure App Service using a publish profile, and verifies `/api/v1/health`.
+
+Pushes to `main` that change frontend files run `.github/workflows/frontend-production.yml`. The workflow builds the frontend against the Azure API and deploys `frontend/dist` to the Firebase Hosting live channel.

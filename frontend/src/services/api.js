@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const client = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1', withCredentials: true, timeout: 15000 });
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api/v1').replace(/\/$/, '');
+const client = axios.create({ baseURL: apiBaseUrl, withCredentials: true, timeout: 15000 });
 client.interceptors.request.use((config) => { const token = localStorage.getItem('rifat-token'); if (token) config.headers.Authorization = `Bearer ${token}`; return config; });
 
 const api = async (path, options = {}) => {
@@ -12,4 +13,4 @@ const api = async (path, options = {}) => {
   }
 };
 
-export { api, client };
+export { api, apiBaseUrl, client };

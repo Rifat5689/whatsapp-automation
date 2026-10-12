@@ -1,0 +1,51 @@
+name: Deploy frontend to Firebase Hosting production
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/frontend-production.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy frontend
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build frontend
+        env:
+          VITE_API_BASE_URL: https://whatsapp-automations-cbhggxbmepdmh7ch.centralindia-01.azurewebsites.net/api/v1
+        run: npm run build --workspace frontend
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0.11.0
+        with:
+          entryPoint: frontend
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WHATSAPP_AUTOMATION_9E865 }}
+          projectId: whatsapp-automation-9e865
+          channelId: live

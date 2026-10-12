@@ -2,7 +2,34 @@ node_modules/
 frontend/dist/
 backend/uploads/*
 !backend/uploads/.gitkeep
+
+# Local environment files (examples remain tracked)
 .env
 **/.env
+**/.env.*
+!**/.env.example
+
+# Credentials and deployment secrets
+**/*firebase-adminsdk*.json
+**/*service-account*.json
+**/*service_account*.json
+**/credentials*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.publishsettings
+
+# Generated Firebase and test/build state
+**/.firebase/
+coverage/
+.nyc_output/
+firebase-debug.log*
+
+# Logs, editor, and OS files
 data/uploads/
 *.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

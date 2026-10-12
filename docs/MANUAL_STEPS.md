@@ -24,21 +24,21 @@ Never invent credentials or external values.
 
 ## Pending deployment and production integrations
 
-1. The local MongoDB Atlas connection has been verified. In Atlas Network Access, allow the Elastic Beanstalk instances' stable egress address or approved VPC networking path and retain TLS. Set `MONGODB_URI` in Elastic Beanstalk environment properties; do not upload `backend/.env`.
+1. The local MongoDB Atlas connection has been verified. In Atlas Network Access, allow the Azure App Service outbound addresses or approved private networking path and retain TLS. Set `MONGODB_URI` in App Service environment variables; do not upload `backend/.env`.
 2. Create a private S3 photo bucket with public access blocked in AWS; copy the bucket name and region into backend deployment secrets to enable the production storage adapter.
 3. Configure an AI provider account and server-side API key in the chosen provider console; add the key only to backend deployment secrets and select its provider/model in RIFAT.AI.
 4. Create a Meta app and WhatsApp Cloud API configuration in Meta for Developers; copy the phone-number ID, business-account ID, access token, app secret, and verification token into backend deployment secrets.
 5. After staging exists, configure Meta's webhook callback to the staging HTTPS endpoint and subscribe to message/status events.
-6. Create S3/CloudFront frontend hosting, DNS, and SSL resources in AWS; configure the frontend API origin and backend secrets there.
+6. Firebase Hosting is the current frontend target. Creating S3/CloudFront frontend hosting, DNS, and SSL resources in AWS is deferred until the later AWS migration.
 
-## Elastic Beanstalk production deployment
+## Azure App Service production deployment
 
-1. In Elastic Beanstalk, confirm `rifat-ai-backend-prod` uses the Node.js 24 on Amazon Linux 2023 platform and its health-check path is `/api/v1/health`.
-2. In the environment's Configuration → Updates, monitoring, and logging → Environment properties, set `NODE_ENV=production`, `MONGODB_URI`, `OWNER_EMAIL`, `OWNER_PASSWORD_HASH`, `JWT_SECRET`, and `FRONTEND_ORIGIN`. Add provider-specific variables from `backend/.env.example` only when those adapters are enabled. GitHub repository secrets are deployment credentials and do not become runtime variables automatically.
-3. In MongoDB Atlas, permit the environment's approved network path. Copy no database password into GitHub workflow files or deployment ZIPs.
-4. Attach a least-privilege policy to the IAM principal behind `AWS_ACCESS_KEY_ID`. Scope S3 permissions to `arn:aws:s3:::elasticbeanstalk-ap-southeast-2-497746198174/rifat-ai-deployments/*` and Elastic Beanstalk permissions to the `rifat-ai-backend` application and `rifat-ai-backend-prod` environment where IAM condition keys permit. Required actions are `s3:PutObject`, `elasticbeanstalk:CreateApplicationVersion`, `elasticbeanstalk:UpdateEnvironment`, and `elasticbeanstalk:DescribeEnvironments`. Do not grant access to the personal-photo bucket or `AdministratorAccess`.
-5. In GitHub Settings → Environments, create or reuse `production`, add required reviewers/branch restrictions if desired, and ensure only `main` can deploy. Keep the existing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` repository or environment secrets.
-6. Trigger the first deployment by opening Actions → Deploy backend to production → Run workflow on `main`, or push a backend deployment-file change to `main`.
-7. To roll back, find a previously healthy version under Elastic Beanstalk → Application versions, then deploy it to `rifat-ai-backend-prod`; equivalently run `aws elasticbeanstalk update-environment --environment-name rifat-ai-backend-prod --version-label <previous-version>` and wait for the environment update.
+1. Create a Linux Azure App Service Web App with the Node.js 24 runtime and Always On enabled. Configure its health-check path as `/api/v1/health`.
+2. In App Service Configuration, set `NODE_ENV=production`, `SCM_DO_BUILD_DURING_DEPLOYMENT=true`, `MONGODB_URI`, `OWNER_EMAIL`, `OWNER_PASSWORD_HASH`, `JWT_SECRET`, and `FRONTEND_ORIGIN`. Set `FRONTEND_ORIGIN=https://whatsapp-automation-9e865.web.app` without a trailing slash, save the settings, and restart the Web App. Add provider-specific variables from `backend/.env.example` only when those adapters are enabled.
+3. In MongoDB Atlas, permit the Web App's listed outbound IP addresses or its approved private networking path. Copy no database password into workflow files or deployment ZIPs.
+4. In GitHub Settings > Environments > `production`, keep the `AZUREAPPSERVICE_PUBLISHPROFILE_B4A3AFC2356F418B9967A00F75A991BF` secret populated with the publish profile for `whatsapp-automations`. Restrict the environment to `main` and add reviewers if desired.
+5. In GitHub Settings > Environments > `production`, add the Firebase service-account JSON as the secret `FIREBASE_SERVICE_ACCOUNT_WHATSAPP_AUTOMATION_9E865`. If `firebase init hosting:github` already created this repository secret, confirm it is available to the `production` environment. The service account should be limited to deploying Firebase Hosting for project `whatsapp-automation-9e865`. The frontend workflow uses `https://whatsapp-automations-cbhggxbmepdmh7ch.centralindia-01.azurewebsites.net/api/v1` as its production API.
+6. Trigger the first deployment from Actions > Deploy backend to Azure production > Run workflow on `main`, or push a backend deployment-file change to `main`.
+7. After verifying the Azure deployment, revoke/delete the old AWS deployment credentials from GitHub if they are no longer used elsewhere. Rotate the MongoDB user password that was previously present in `backend/.env.example`, then update local and Azure `MONGODB_URI` values.
 
 Use `backend/.env.example` as the complete server-side variable checklist and `frontend/.env.example` only for public frontend configuration. Never copy server secrets into `VITE_*` variables.

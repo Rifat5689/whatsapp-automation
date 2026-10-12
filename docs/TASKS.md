@@ -18,8 +18,9 @@
 - [x] Image Approval Workflow
 - [x] Activity & Tracking
 - [x] Mock Messaging Integration
-- [x] Elastic Beanstalk Production Deployment Workflow
-- [ ] AWS Staging Deployment
+- [x] Azure App Service Production Deployment Workflow
+- [x] Firebase Hosting Frontend Production Deployment Workflow
+- [ ] Azure Staging Deployment
 - [ ] Production S3 Photo Storage
 - [ ] Meta WhatsApp Cloud API Integration
 - [ ] Full Staging Testing

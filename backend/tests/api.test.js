@@ -19,6 +19,12 @@ test('rejects an invalid owner username', async () => {
   assert.equal(response.status, 401);
 });
 test('exposes public health status without secrets', async () => { const response = await fetch(`${base}/health`); assert.equal(response.status, 200); assert.deepEqual(await response.json(), { status: 'ok', database: 'local' }); });
+test('allows the configured local frontend origin only', async () => {
+  const allowed = await fetch(`${base}/health`, { headers: { origin: 'http://localhost:5173' } });
+  assert.equal(allowed.headers.get('access-control-allow-origin'), 'http://localhost:5173');
+  const rejected = await fetch(`${base}/health`, { headers: { origin: 'https://untrusted.example' } });
+  assert.equal(rejected.headers.get('access-control-allow-origin'), null);
+});
 test('protects API routes', async () => assert.equal((await fetch(`${base}/bootstrap`)).status, 401));
 test('valid login accesses owner-scoped bootstrap', async () => { const response = await login(); assert.equal(response.status, 200); const token = (await response.json()).data.token; const bootstrap = await fetch(`${base}/bootstrap`, { headers: { authorization: `Bearer ${token}` } }); assert.equal(bootstrap.status, 200); assert.equal((await bootstrap.json()).data.ownerId, 'owner-local'); });
 test('deduplicates incoming provider messages', async () => { const token = (await (await login()).json()).data.token; const request = () => fetch(`${base}/messages/incoming`, { method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ contactId: 'unknown', content: 'hello', providerMessageId: 'provider-duplicate-test' }) }); assert.equal((await request()).status, 201); const duplicate = await request(); assert.equal(duplicate.status, 200); assert.equal((await duplicate.json()).data.action, 'duplicate'); });

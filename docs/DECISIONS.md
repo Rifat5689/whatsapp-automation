@@ -19,7 +19,7 @@ Record meaningful project decisions only.
 ### Hosting
 - Frontend target: Firebase Hosting for now; AWS hosting may replace it later.
 - Backend target: Azure App Service on Linux using Node.js 24.
-- Photo storage target: private Amazon S3.
+- Photo storage target: private Cloudflare R2 accessed through its S3-compatible API.
 
 ### Integrations
 - WhatsApp production transport: official Meta WhatsApp Cloud API.
@@ -29,7 +29,8 @@ Record meaningful project decisions only.
 ### Development
 - Keep the React application in `frontend/` and the Express application in `backend/`.
 - Work feature-by-feature.
-- Current Git workflow may use direct work on `main` unless changed later.
+- Create a feature branch for each task, test it locally, push it, and merge it into `main` only after review. Production deployment remains limited to `main`.
+- Do not maintain a separate staging environment; local development is the pre-production verification environment.
 - External/manual setup is documented in `MANUAL_STEPS.md`.
 - Single-owner login credentials are supplied only through server-side environment variables.
 

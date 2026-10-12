@@ -82,6 +82,10 @@ export function createApp() {
         contact = { id: id(), ownerId: db.ownerId, name: displayName.slice(0, 80), phone: '', telegramChatId: chatId, telegramUsername: String(message.from?.username || '').slice(0, 64), telegramDefaultModeApplied: true, relationship: 'Unknown', language: 'Natural', communicationStyle: 'Polite and brief', aiEnabled: mode !== 'Manual', mode, memoryPermissions: false, photoPermissions: false, humanTakeover: false, notes: 'Created from Telegram.' };
         db.contacts.push(contact); db.conversations.push({ id: `conv-${contact.id}`, ownerId: db.ownerId, contactId: contact.id, mode: contact.mode, humanTakeover: false }); log('contact.created.telegram', contact.name, contact.id);
       }
+      if (contact.telegramDefaultModeApplied !== true) {
+        const mode = ['AI Auto', 'AI Approval', 'Manual'].includes(db.settings.defaultMode) ? db.settings.defaultMode : 'AI Approval';
+        contact.mode = mode; contact.aiEnabled = mode !== 'Manual'; contact.telegramDefaultModeApplied = true;
+      }
       await processIncoming({ contact, content: message.text.trim(), providerMessageId: `telegram-${chatId}-${message.message_id}`, simulated: false });
       return res.sendStatus(200);
     } catch (error) { return next(error); }

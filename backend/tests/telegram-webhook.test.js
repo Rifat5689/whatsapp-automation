@@ -37,3 +37,14 @@ test('Telegram webhook deduplicates retried updates', async () => {
   assert.equal(response.status, 200);
   assert.equal(db.messages.filter((item) => item.providerMessageId === 'telegram-300-200').length, before);
 });
+
+test('Telegram webhook migrates a legacy linked contact before processing', async () => {
+  const contact = db.contacts.find((item) => item.telegramChatId === '300');
+  contact.mode = 'Manual'; contact.aiEnabled = false; delete contact.telegramDefaultModeApplied;
+  const nextUpdate = { ...update, message: { ...update.message, message_id: 201, text: 'next message' } };
+  const response = await fetch(webhook, { method: 'POST', headers: { 'content-type': 'application/json', 'x-telegram-bot-api-secret-token': 'test_webhook_secret' }, body: JSON.stringify(nextUpdate) });
+  assert.equal(response.status, 200);
+  assert.equal(contact.mode, 'AI Approval');
+  assert.equal(contact.aiEnabled, true);
+  assert.equal(contact.telegramDefaultModeApplied, true);
+});

@@ -6,7 +6,7 @@ client.interceptors.request.use((config) => { const token = localStorage.getItem
 
 const api = async (path, options = {}) => {
   try {
-    const response = await client.request({ url: path, method: options.method || 'GET', data: options.body instanceof FormData ? options.body : options.body ? JSON.parse(options.body) : undefined, headers: options.headers });
+    const response = await client.request({ url: path, method: options.method || 'GET', data: options.body instanceof FormData ? options.body : options.body ? JSON.parse(options.body) : undefined, headers: options.headers, timeout: options.timeout });
     return response.data?.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || error.response?.data?.error || 'Request failed');

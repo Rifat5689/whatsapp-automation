@@ -34,6 +34,7 @@
 - [x] Fixed Conversation Viewport and Auto-scroll
 - [x] Raw AI Model Testing Without System Prompt
 - [x] Configurable Personalized and Raw AI Instruction Modes
+- [x] Contact-Specific WhatsApp Chat Profile Import
 - [ ] Full Local Production-Configuration Testing
 - [ ] Production Deployment
 

@@ -23,7 +23,7 @@ export function detectPhotoRequest(text = '') {
 }
 
 export function safeContact(input, current = {}) {
-  const allowed = ['name', 'phone', 'relationship', 'language', 'communicationStyle', 'aiEnabled', 'mode', 'notes', 'memoryPermissions', 'photoPermissions'];
+  const allowed = ['name', 'phone', 'relationship', 'language', 'communicationStyle', 'replyGuidance', 'aiEnabled', 'mode', 'notes', 'memoryPermissions', 'photoPermissions'];
   const output = { ...current };
   for (const key of allowed) if (Object.hasOwn(input, key)) output[key] = input[key];
   if (!output.name || String(output.name).length > 80) throw new Error('A valid name is required');

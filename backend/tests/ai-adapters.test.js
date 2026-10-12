@@ -46,3 +46,10 @@ test('Telegram refuses to send without a linked chat', async () => {
   const adapter = new TelegramMessagingAdapter({ botToken: 'test-token' });
   await assert.rejects(() => adapter.send({ content: 'Hello' }), /not linked/);
 });
+
+test('OpenRouter converts a chat analysis response into bounded contact rules', async () => {
+  const response = JSON.stringify({ language: 'Mixed', communicationStyle: 'Casual Banglish', replyGuidance: 'Use short friendly replies and occasional emojis.' });
+  const adapter = new OpenRouterAIAdapter({ apiKey: 'test-key', fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: response } }] }), { status: 200 }) });
+  const profile = await adapter.analyzeContactChat({ transcript: 'sample chat', ownerName: 'Owner', contactName: 'Friend', models: 'openrouter/free' });
+  assert.deepEqual(profile, { language: 'Mixed', communicationStyle: 'Casual Banglish', replyGuidance: 'Use short friendly replies and occasional emojis.' });
+});

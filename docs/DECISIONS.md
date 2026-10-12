@@ -26,6 +26,7 @@ Record meaningful project decisions only.
 - Use mock messaging before Telegram credentials and its webhook are configured.
 - Use provider adapters for messaging, storage, and AI integrations where useful.
 - AI generation uses OpenRouter for free-model routing, with direct Gemini and Mock adapters available as controlled fallbacks.
+- WhatsApp text exports may be analyzed for one selected contact; raw transcripts remain in memory only and only derived reply guidance is persisted.
 
 ### Development
 - Keep the React application in `frontend/` and the Express application in `backend/`.

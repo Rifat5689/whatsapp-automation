@@ -18,7 +18,7 @@
 - [x] Image Approval Workflow
 - [x] Activity & Tracking
 - [x] Mock Messaging Integration
-- [x] Azure App Service Production Deployment Workflow
+- [x] Self-Contained Azure App Service Production Deployment Workflow
 - [x] Firebase Hosting Frontend Production Deployment Workflow
 - [x] Simplified Environment-Based Owner Login
 - [ ] Azure Staging Deployment

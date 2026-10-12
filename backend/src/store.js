@@ -10,7 +10,7 @@ const contacts = [
 export const db = {
   ownerId,
   contacts,
-  personalization: { languageStyle: 'Bangla + Banglish + English', tone: 'Friendly and natural', responseLength: 'Medium', humor: 'Sometimes', emojiUsage: 'Moderate', about: 'I am Rifat. I am a university student and tech lover.', share: 'General info, interests, non-sensitive details', neverShare: 'Private personal info, exact location, family details', unknownBehavior: 'Be polite, keep it short, avoid personal details' },
+  personalization: { languageStyle: 'Bangla + Banglish + English', tone: 'Friendly and natural', responseLength: 'Medium', humor: 'Sometimes', emojiUsage: 'Moderate', casualStyleRules: 'Write naturally and casually. Never introduce yourself as an AI assistant.', about: 'I am Rifat. I am a university student and tech lover.', share: 'General info, interests, non-sensitive details', neverShare: 'Private personal info, exact location, family details', unknownBehavior: 'Be polite, keep it short, avoid personal details' },
   settings: { aiEnabled: true, emergencyStop: false, defaultMode: 'AI Approval', unknownBehavior: 'Manual', notifications: true },
   ai: { instructionMode: 'Personalized', primary: { provider: 'Mock', model: 'rifat-local', enabled: true }, fallback: { provider: 'Mock', model: 'safe-template', enabled: true } },
   photos: [], approvals: [], activities: [],

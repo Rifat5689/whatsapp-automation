@@ -96,7 +96,23 @@ export function createApp() {
   app.use('/api/v1', verifyJwt);
   app.get('/api/v1/bootstrap', (_req, res) => success(res, { ...db, integrations: { messagingProvider: env.messagingProvider } }));
   app.use('/api/v1/contacts', contactRouter);
-  app.put('/api/v1/personalization', async (req, res) => { const allowed = ['languageStyle', 'tone', 'responseLength', 'humor', 'emojiUsage', 'about', 'share', 'neverShare', 'unknownBehavior']; for (const key of allowed) if (Object.hasOwn(req.body, key)) db.personalization[key] = String(req.body[key]).slice(0, 1000); await saveState(); success(res, db.personalization); });
+  app.put('/api/v1/personalization', async (req, res) => { const allowed = ['languageStyle', 'tone', 'responseLength', 'humor', 'emojiUsage', 'casualStyleRules', 'about', 'share', 'neverShare', 'unknownBehavior']; for (const key of allowed) if (Object.hasOwn(req.body, key)) db.personalization[key] = String(req.body[key]).slice(0, key === 'casualStyleRules' ? 2000 : 1000); await saveState(); success(res, db.personalization); });
+  const chatImports = multer({ storage: multer.memoryStorage(), limits: { fileSize: 1024 * 1024, files: 20 } });
+  app.post('/api/v1/personalization/import-chats', chatImports.array('chats', 20), async (req, res) => {
+    const files = req.files || []; const ownerName = String(req.body.ownerName || '').trim().slice(0, 80);
+    if (!ownerName) return res.status(400).json({ error: 'Your name in the WhatsApp exports is required' });
+    if (!files.length) return res.status(400).json({ error: 'Select at least one WhatsApp .txt export' });
+    if (files.some((file) => file.mimetype !== 'text/plain' || !file.originalname.toLowerCase().endsWith('.txt'))) return res.status(400).json({ error: 'Only WhatsApp .txt exports are allowed' });
+    const allowance = Math.min(20_000, Math.floor(100_000 / files.length));
+    const samples = files.map((file, index) => {
+      const text = file.buffer.toString('utf8').replace(/\0/g, '').trim(); const sample = text.slice(-allowance);
+      return sample ? `--- CHAT ${index + 1} ---\n${sample}` : '';
+    }).filter(Boolean);
+    if (samples.join('').length < 100) return res.status(400).json({ error: 'The selected WhatsApp exports are too short' });
+    const profile = await aiAdapter.analyzeGlobalChats({ transcripts: samples.join('\n'), ownerName, configuration: db.ai });
+    Object.assign(db.personalization, profile, { chatStyleImportedAt: now(), chatStyleSourceCount: files.length });
+    log('personalization.chat-style.imported', `${files.length} chat export(s) analyzed`); await saveState(); return success(res, db.personalization);
+  });
   app.patch('/api/v1/settings', async (req, res) => { for (const key of ['aiEnabled', 'emergencyStop', 'defaultMode', 'unknownBehavior', 'notifications']) if (Object.hasOwn(req.body, key)) db.settings[key] = req.body[key]; log('settings.updated', 'Application settings changed'); await saveState(); success(res, db.settings); });
   app.patch('/api/v1/ai', async (req, res) => { const providers = ['Mock', 'OpenRouter', 'Gemini']; if (['Raw', 'Personalized'].includes(req.body.instructionMode)) db.ai.instructionMode = req.body.instructionMode; for (const tier of ['primary', 'fallback']) if (req.body[tier]) { if (Object.hasOwn(req.body[tier], 'provider') && providers.includes(req.body[tier].provider)) db.ai[tier].provider = req.body[tier].provider; if (Object.hasOwn(req.body[tier], 'model')) db.ai[tier].model = String(req.body[tier].model).slice(0, 500); if (Object.hasOwn(req.body[tier], 'enabled')) db.ai[tier].enabled = Boolean(req.body[tier].enabled); } log('ai.updated', 'AI provider settings changed'); await saveState(); success(res, db.ai); });
   app.post('/api/v1/conversations/:contactId/takeover', async (req, res) => { const contact = ownedContact(req.params.contactId); if (!contact) return res.status(404).json({ error: 'Contact not found' }); contact.humanTakeover = Boolean(req.body.active); log(contact.humanTakeover ? 'takeover.started' : 'takeover.ended', contact.name, contact.id); await saveState(); success(res, contact); });

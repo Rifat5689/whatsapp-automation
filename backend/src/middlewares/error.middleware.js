@@ -9,7 +9,7 @@ const errorHandler = (error, _req, res, _next) => {
   return res.status(statusCode).json({
     success: false,
     statusCode,
-    message: uploadError ? (error.code === 'LIMIT_FILE_SIZE' ? 'Photo exceeds 5 MB' : 'Upload rejected') : statusCode === 500 ? 'Unexpected server error' : error.message,
+    message: uploadError ? (error.code === 'LIMIT_FILE_SIZE' ? (error.field === 'chats' ? 'Chat export exceeds 1 MB' : 'Photo exceeds 5 MB') : 'Upload rejected') : statusCode === 500 ? 'Unexpected server error' : error.message,
     errors: error.errors || []
   });
 };

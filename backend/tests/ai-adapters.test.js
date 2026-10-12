@@ -53,3 +53,13 @@ test('OpenRouter converts a chat analysis response into bounded contact rules', 
   const profile = await adapter.analyzeContactChat({ transcript: 'sample chat', ownerName: 'Owner', contactName: 'Friend', models: 'openrouter/free' });
   assert.deepEqual(profile, { language: 'Mixed', communicationStyle: 'Casual Banglish', replyGuidance: 'Use short friendly replies and occasional emojis.' });
 });
+
+test('OpenRouter converts multiple chats into global casual style rules', async () => {
+  const response = JSON.stringify({ languageStyle: 'Bangla and Banglish', tone: 'Relaxed', responseLength: 'Short', humor: 'Playful', emojiUsage: 'Occasional', casualStyleRules: 'Use short Banglish replies and informal spelling.', unknownBehavior: 'Be polite and avoid personal details.' });
+  let request;
+  const adapter = new OpenRouterAIAdapter({ apiKey: 'test-key', fetchImpl: async (_url, options) => { request = JSON.parse(options.body); return new Response(JSON.stringify({ choices: [{ message: { content: response } }] }), { status: 200 }); } });
+  const profile = await adapter.analyzeGlobalChats({ transcripts: 'Owner: ki obsta', ownerName: 'Owner', models: 'openrouter/free' });
+  assert.equal(profile.casualStyleRules, 'Use short Banglish replies and informal spelling.');
+  assert.equal(profile.unknownBehavior, 'Be polite and avoid personal details.');
+  assert.match(request.messages[0].content, /untrusted data/);
+});

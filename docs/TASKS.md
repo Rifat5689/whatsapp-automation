@@ -21,10 +21,10 @@
 - [x] Self-Contained Azure App Service Production Deployment Workflow
 - [x] Firebase Hosting Frontend Production Deployment Workflow
 - [x] Simplified Environment-Based Owner Login
-- [ ] Azure Staging Deployment
-- [ ] Production S3 Photo Storage
+- [x] Production Cloudflare R2 Photo Storage
 - [ ] Meta WhatsApp Cloud API Integration
-- [ ] Full Staging Testing
+- [x] Feature-Branch Workflow and Local/Production CORS Configuration
+- [ ] Full Local Production-Configuration Testing
 - [ ] Production Deployment
 
 Agents must update only genuinely completed work and stop after the current task.

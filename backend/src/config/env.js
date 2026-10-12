@@ -3,7 +3,7 @@ const optional = (name, fallback = '') => process.env[name]?.trim() || fallback;
 const env = Object.freeze({
   nodeEnv: optional('NODE_ENV', 'development'),
   port: Number(optional('PORT', '3001')),
-  frontendOrigin: optional('FRONTEND_ORIGIN', 'http://localhost:5173'),
+  frontendOrigins: optional('FRONTEND_ORIGIN', 'http://localhost:5173').split(',').map((origin) => origin.trim()).filter(Boolean),
   mongodbUri: optional('MONGODB_URI'),
   ownerUsername: optional('OWNER_USERNAME', 'owner'),
   ownerPassword: optional('OWNER_PASSWORD', 'local-demo-only'),
@@ -20,10 +20,10 @@ const env = Object.freeze({
   metaAppSecret: optional('META_APP_SECRET'),
   metaWebhookVerifyToken: optional('META_WEBHOOK_VERIFY_TOKEN'),
   storageProvider: optional('STORAGE_PROVIDER', 'local'),
-  awsRegion: optional('AWS_REGION'),
-  awsS3Bucket: optional('AWS_S3_BUCKET'),
-  awsAccessKeyId: optional('AWS_ACCESS_KEY_ID'),
-  awsSecretAccessKey: optional('AWS_SECRET_ACCESS_KEY')
+  cloudStorageAccountId: optional('CLOUD_STORAGE_ACCOUNT_ID'),
+  cloudStorageAccessKey: optional('CLOUD_STORAGE_ACCESS_KEY'),
+  cloudStorageSecretKey: optional('CLOUD_STORAGE_SECRET_KEY'),
+  cloudStorageBucket: optional('CLOUD_STORAGE_BUCKET')
 });
 
 const requireValues = (names) => {
@@ -37,7 +37,8 @@ const validateEnv = () => {
   if (env.aiProvider === 'openai') requireValues(['OPENAI_API_KEY', 'OPENAI_MODEL']);
   if (env.aiProvider === 'anthropic') requireValues(['ANTHROPIC_API_KEY', 'ANTHROPIC_MODEL']);
   if (env.messagingProvider === 'meta') requireValues(['META_WHATSAPP_ACCESS_TOKEN', 'META_WHATSAPP_PHONE_NUMBER_ID', 'META_WHATSAPP_BUSINESS_ACCOUNT_ID', 'META_APP_SECRET', 'META_WEBHOOK_VERIFY_TOKEN']);
-  if (env.storageProvider === 's3') requireValues(['AWS_REGION', 'AWS_S3_BUCKET']);
+  if (!['local', 'r2'].includes(env.storageProvider)) throw new Error('STORAGE_PROVIDER must be local or r2');
+  if (env.storageProvider === 'r2') requireValues(['CLOUD_STORAGE_ACCOUNT_ID', 'CLOUD_STORAGE_ACCESS_KEY', 'CLOUD_STORAGE_SECRET_KEY', 'CLOUD_STORAGE_BUCKET']);
   return env;
 };
 

@@ -21,7 +21,7 @@ export default function ConversationsPage() {
     if (!content || pendingReply) return;
     setText('');
     setPendingReply({ contactId: contact.id, content });
-    try { await mutate('/messages/incoming', { method: 'POST', body: JSON.stringify({ contactId: contact.id, content }) }); }
+    try { await mutate('/messages/send', { method: 'POST', body: JSON.stringify({ contactId: contact.id, content }) }); }
     catch { /* AppProvider exposes the sanitized request error to the UI. */ }
     finally { setPendingReply(null); }
   };
@@ -36,12 +36,12 @@ export default function ConversationsPage() {
     <section className="panel chat">
       <div className="chat-head"><Avatar name={contact.name} /><strong>{contact.name}<small>{contact.mode}</small></strong></div>
       <div className="messages">
-        {messages.map((message) => <div className={`message ${message.senderType === 'ai' ? 'in' : 'out'}`} key={message.id}>{message.type === 'image' && <b>▧ Photo<br /></b>}{message.content}<small>{message.senderType} · {message.deliveryStatus}</small>{message.deliveryStatus === 'failed' && <button onClick={() => mutate(`/messages/${message.id}/retry`, { method: 'POST' })}>Retry</button>}</div>)}
-        {pendingReply?.contactId === contact.id && <><div className="message out pending-message">{pendingReply.content}<small>you · sending</small></div><div className="message in typing-message" role="status" aria-live="polite"><span>AI is responding</span><i aria-hidden="true"><b></b><b></b><b></b></i></div></>}
+        {messages.map((message) => <div className={`message ${message.senderType === 'owner' ? 'out' : 'in'}`} key={message.id}>{message.type === 'image' && <b>▧ Photo<br /></b>}{message.content}<small>{message.senderType} · {message.deliveryStatus}</small>{message.deliveryStatus === 'failed' && <button onClick={() => mutate(`/messages/${message.id}/retry`, { method: 'POST' })}>Retry</button>}</div>)}
+        {pendingReply?.contactId === contact.id && <div className="message out pending-message">{pendingReply.content}<small>you · sending</small></div>}
         {data.approvals.filter((approval) => approval.contactId === contact.id && approval.status === 'pending').map((approval) => <div className="approval" key={approval.id}><b>Approval needed</b><p>{approval.draft || approval.caption}</p><button onClick={() => mutate(`/approvals/${approval.id}/approve`, { method: 'POST' })}>Approve</button><button onClick={() => mutate(`/approvals/${approval.id}/reject`, { method: 'POST' })}>Reject</button></div>)}
         <div ref={messagesEndRef} />
       </div>
-      <div className="composer"><input value={text} disabled={Boolean(pendingReply)} onChange={(event) => setText(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && send()} placeholder={pendingReply ? 'Waiting for AI response…' : 'Type a message…'} /><button disabled={Boolean(pendingReply)} aria-label="Send message" onClick={send}>➤</button></div>
+      <div className="composer"><input value={text} disabled={Boolean(pendingReply)} onChange={(event) => setText(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && send()} placeholder={pendingReply ? 'Sending…' : 'Type a message…'} /><button disabled={Boolean(pendingReply)} aria-label="Send message" onClick={send}>➤</button></div>
     </section>
     <aside className="panel info">
       <h3>Contact Info</h3><Avatar name={contact.name} /><h3>{contact.name}</h3><span className="tag">{contact.relationship}</span><h4>Conversation Mode</h4><b>{contact.mode}</b><h4>Quick Actions</h4>

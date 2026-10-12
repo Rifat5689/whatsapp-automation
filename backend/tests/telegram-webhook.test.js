@@ -20,13 +20,13 @@ test('Telegram webhook rejects a missing secret', async () => {
   assert.equal(response.status, 401);
 });
 
-test('Telegram webhook stores a new sender safely in Manual mode', async () => {
+test('Telegram webhook stores a new sender using the configured default mode', async () => {
   const response = await fetch(webhook, { method: 'POST', headers: { 'content-type': 'application/json', 'x-telegram-bot-api-secret-token': 'test_webhook_secret' }, body: JSON.stringify(update) });
   assert.equal(response.status, 200);
   const contact = db.contacts.find((item) => item.telegramChatId === '300');
   assert.equal(contact?.telegramUsername, 'telegram_test');
-  assert.equal(contact?.mode, 'Manual');
-  assert.equal(contact?.aiEnabled, false);
+  assert.equal(contact?.mode, 'AI Approval');
+  assert.equal(contact?.aiEnabled, true);
   assert.equal(db.messages.some((item) => item.providerMessageId === 'telegram-300-200' && item.contactId === contact.id), true);
 });
 

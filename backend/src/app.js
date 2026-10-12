@@ -76,8 +76,8 @@ export function createApp() {
       let contact = db.contacts.find((item) => item.telegramChatId === chatId);
       if (!contact) {
         const displayName = [message.from?.first_name, message.from?.last_name].filter(Boolean).join(' ').trim() || message.from?.username || `Telegram ${chatId}`;
-        const mode = db.settings.unknownBehavior === 'AI Approval' ? 'AI Approval' : 'Manual';
-        contact = { id: id(), ownerId: db.ownerId, name: displayName.slice(0, 80), phone: '', telegramChatId: chatId, telegramUsername: String(message.from?.username || '').slice(0, 64), relationship: 'Unknown', language: 'Natural', communicationStyle: 'Polite and brief', aiEnabled: mode === 'AI Approval', mode, memoryPermissions: false, photoPermissions: false, humanTakeover: false, notes: 'Created from Telegram.' };
+        const mode = ['AI Auto', 'AI Approval', 'Manual'].includes(db.settings.defaultMode) ? db.settings.defaultMode : 'AI Approval';
+        contact = { id: id(), ownerId: db.ownerId, name: displayName.slice(0, 80), phone: '', telegramChatId: chatId, telegramUsername: String(message.from?.username || '').slice(0, 64), relationship: 'Unknown', language: 'Natural', communicationStyle: 'Polite and brief', aiEnabled: mode !== 'Manual', mode, memoryPermissions: false, photoPermissions: false, humanTakeover: false, notes: 'Created from Telegram.' };
         db.contacts.push(contact); db.conversations.push({ id: `conv-${contact.id}`, ownerId: db.ownerId, contactId: contact.id, mode: contact.mode, humanTakeover: false }); log('contact.created.telegram', contact.name, contact.id);
       }
       await processIncoming({ contact, content: message.text.trim(), providerMessageId: `telegram-${chatId}-${message.message_id}`, simulated: false });

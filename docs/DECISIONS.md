@@ -25,6 +25,7 @@ Record meaningful project decisions only.
 - WhatsApp production transport: official Meta WhatsApp Cloud API.
 - Use mock messaging before Meta credentials are configured.
 - Use provider adapters for messaging, storage, and AI integrations where useful.
+- AI generation uses OpenRouter for free-model routing, with direct Gemini and Mock adapters available as controlled fallbacks.
 
 ### Development
 - Keep the React application in `frontend/` and the Express application in `backend/`.

@@ -4,7 +4,9 @@ import { disconnectDatabase } from '../src/config/db.js';
 import { env, validateEnv } from '../src/config/env.js';
 
 test('uses safe local provider defaults', () => {
-  assert.equal(env.aiProvider, 'mock');
+  assert.deepEqual(env.openRouterModels, ['openrouter/free']);
+  assert.equal(env.openRouterApiKey, '');
+  assert.equal(env.geminiApiKey, '');
   assert.equal(env.messagingProvider, 'mock');
   assert.equal(env.storageProvider, 'local');
   assert.doesNotThrow(validateEnv);

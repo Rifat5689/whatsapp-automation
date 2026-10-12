@@ -24,6 +24,13 @@
 - [x] Production Cloudflare R2 Photo Storage
 - [ ] Meta WhatsApp Cloud API Integration
 - [x] Feature-Branch Workflow and Local/Production CORS Configuration
+- [x] OpenRouter Free-Model Routing with Gemini Fallback
+- [x] Conversation Composer AI Flow
+- [x] Role-Based Conversation Message Alignment
+- [x] AI Reply Pending Animation
+- [x] Fixed Conversation Viewport and Auto-scroll
+- [x] Raw AI Model Testing Without System Prompt
+- [x] Configurable Personalized and Raw AI Instruction Modes
 - [ ] Full Local Production-Configuration Testing
 - [ ] Production Deployment
 

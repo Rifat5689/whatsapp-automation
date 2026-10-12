@@ -8,11 +8,10 @@ const env = Object.freeze({
   ownerUsername: optional('OWNER_USERNAME', 'owner'),
   ownerPassword: optional('OWNER_PASSWORD', 'local-demo-only'),
   jwtSecret: optional('JWT_SECRET'),
-  aiProvider: optional('AI_PROVIDER', 'mock'),
-  openaiApiKey: optional('OPENAI_API_KEY'),
-  openaiModel: optional('OPENAI_MODEL'),
-  anthropicApiKey: optional('ANTHROPIC_API_KEY'),
-  anthropicModel: optional('ANTHROPIC_MODEL'),
+  openRouterApiKey: optional('OPENROUTER_API_KEY'),
+  openRouterModels: optional('OPENROUTER_MODELS', 'openrouter/free').split(',').map((model) => model.trim()).filter(Boolean),
+  geminiApiKey: optional('GEMINI_API_KEY'),
+  geminiModels: optional('GEMINI_MODELS').split(',').map((model) => model.trim()).filter(Boolean),
   messagingProvider: optional('MESSAGING_PROVIDER', 'mock'),
   metaAccessToken: optional('META_WHATSAPP_ACCESS_TOKEN'),
   metaPhoneNumberId: optional('META_WHATSAPP_PHONE_NUMBER_ID'),
@@ -34,8 +33,6 @@ const requireValues = (names) => {
 const validateEnv = () => {
   if (!Number.isInteger(env.port) || env.port < 1 || env.port > 65535) throw new Error('PORT must be a valid TCP port');
   if (env.nodeEnv === 'production') requireValues(['MONGODB_URI', 'OWNER_USERNAME', 'OWNER_PASSWORD', 'JWT_SECRET', 'FRONTEND_ORIGIN']);
-  if (env.aiProvider === 'openai') requireValues(['OPENAI_API_KEY', 'OPENAI_MODEL']);
-  if (env.aiProvider === 'anthropic') requireValues(['ANTHROPIC_API_KEY', 'ANTHROPIC_MODEL']);
   if (env.messagingProvider === 'meta') requireValues(['META_WHATSAPP_ACCESS_TOKEN', 'META_WHATSAPP_PHONE_NUMBER_ID', 'META_WHATSAPP_BUSINESS_ACCOUNT_ID', 'META_APP_SECRET', 'META_WEBHOOK_VERIFY_TOKEN']);
   if (!['local', 'r2'].includes(env.storageProvider)) throw new Error('STORAGE_PROVIDER must be local or r2');
   if (env.storageProvider === 'r2') requireValues(['CLOUD_STORAGE_ACCOUNT_ID', 'CLOUD_STORAGE_ACCESS_KEY', 'CLOUD_STORAGE_SECRET_KEY', 'CLOUD_STORAGE_BUCKET']);

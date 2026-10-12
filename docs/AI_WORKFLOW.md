@@ -24,6 +24,10 @@ Never fabricate an owner photo or select an unauthorized photo.
 ## AI Provider Strategy
 Use an abstraction so the provider/model can change without rewriting the application.
 
+The primary free-testing path is OpenRouter. A single `openrouter/free` selection lets OpenRouter choose an available free model, while a comma-separated model list gives an explicit fallback order. The application can then fall back to a configured direct Gemini model list and finally Mock through the primary/fallback settings. Provider calls have bounded timeouts and output limits; backend permission checks still run after generation.
+
+The owner can select Personalized mode, which supplies the editable owner profile, language, tone, response length, humor, emoji, sharing boundaries, unknown-contact behavior, and current contact rules. Raw mode supplies only the latest user message for comparison. Backend privacy, approval, emergency-stop, and takeover rules remain authoritative in both modes.
+
 Potential capabilities:
 - generateReply
 - classifyIntent

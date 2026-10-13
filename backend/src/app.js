@@ -111,6 +111,7 @@ export function createApp() {
     if (samples.join('').length < 100) return res.status(400).json({ error: 'The selected WhatsApp exports are too short' });
     const profile = await aiAdapter.analyzeGlobalChats({ transcripts: samples.join('\n'), ownerName, configuration: db.ai });
     Object.assign(db.personalization, profile, { chatStyleImportedAt: now(), chatStyleSourceCount: files.length });
+    db.ai.instructionMode = 'Personalized';
     log('personalization.chat-style.imported', `${files.length} chat export(s) analyzed`); await saveState(); return success(res, db.personalization);
   });
   app.patch('/api/v1/settings', async (req, res) => { for (const key of ['aiEnabled', 'emergencyStop', 'defaultMode', 'unknownBehavior', 'notifications']) if (Object.hasOwn(req.body, key)) db.settings[key] = req.body[key]; log('settings.updated', 'Application settings changed'); await saveState(); success(res, db.settings); });

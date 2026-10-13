@@ -9,6 +9,7 @@ function ContactForm({ contact, onClose, save, remove, importChat }) {
   const [ownerName, setOwnerName] = useState('');
   const [chatFile, setChatFile] = useState(null);
   const [importing, setImporting] = useState(false);
+  const [importNotice, setImportNotice] = useState('');
   const set = (key, value) => setForm({ ...form, [key]: value });
   const analyze = async () => {
     if (!chatFile || !ownerName.trim()) return;
@@ -16,6 +17,7 @@ function ContactForm({ contact, onClose, save, remove, importChat }) {
     try {
       const updated = await importChat(contact.id, chatFile, ownerName.trim());
       setForm({ ...form, ...updated });
+      setImportNotice('Rules applied. Personalized AI mode is now active. Save any edits below before closing.');
     } finally { setImporting(false); }
   };
 
@@ -37,6 +39,8 @@ function ContactForm({ contact, onClose, save, remove, importChat }) {
         <label>Your name in the export<input maxLength="80" value={ownerName} onChange={(event) => setOwnerName(event.target.value)} /></label>
         <label>WhatsApp chat export<input type="file" accept=".txt,text/plain" onChange={(event) => setChatFile(event.target.files?.[0] || null)} /></label>
         <button type="button" disabled={!chatFile || !ownerName.trim() || importing} onClick={analyze}>{importing ? 'Analyzing…' : 'Analyze and apply rules'}</button>
+        {importNotice && <p>{importNotice}</p>}
+        {!contact.telegramChatId && <p><b>Telegram note:</b> this contact is not linked to a Telegram chat. Import the file into the contact automatically created when that person messages your bot.</p>}
       </section>}
       <footer>{contact && <button type="button" className="danger-button" onClick={remove}>Delete</button>}<button type="button" onClick={onClose}>Cancel</button><button>Save</button></footer>
     </form>

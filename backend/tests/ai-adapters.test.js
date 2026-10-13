@@ -54,6 +54,14 @@ test('OpenRouter converts a chat analysis response into bounded contact rules', 
   assert.deepEqual(profile, { language: 'Mixed', communicationStyle: 'Casual Banglish', replyGuidance: 'Use short friendly replies and occasional emojis.' });
 });
 
+test('personalized replies give contact rules explicit priority', async () => {
+  let request;
+  const adapter = new OpenRouterAIAdapter({ apiKey: 'test-key', fetchImpl: async (_url, options) => { request = JSON.parse(options.body); return new Response(JSON.stringify({ choices: [{ message: { content: 'yo' } }] }), { status: 200 }); } });
+  await adapter.generateReply({ ...payload, contact: { ...payload.contact, replyGuidance: 'Always greet with yo.' }, instructionMode: 'Personalized', models: 'openrouter/free' });
+  assert.match(request.messages[0].content, /overrides general style preferences/);
+  assert.match(request.messages[0].content, /Always greet with yo/);
+});
+
 test('OpenRouter converts multiple chats into global casual style rules', async () => {
   const response = JSON.stringify({ languageStyle: 'Bangla and Banglish', tone: 'Relaxed', responseLength: 'Short', humor: 'Playful', emojiUsage: 'Occasional', casualStyleRules: 'Use short Banglish replies and informal spelling.', unknownBehavior: 'Be polite and avoid personal details.' });
   let request;

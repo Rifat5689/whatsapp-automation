@@ -35,6 +35,7 @@
 - [x] Raw AI Model Testing Without System Prompt
 - [x] Configurable Personalized and Raw AI Instruction Modes
 - [x] Contact-Specific WhatsApp Chat Profile Import
+- [x] Enforced Contact-Specific Style Activation and Telegram Link Guidance
 - [x] Multi-Chat Global Personalization Style Import
 - [ ] Full Local Production-Configuration Testing
 - [ ] Production Deployment

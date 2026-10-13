@@ -27,6 +27,7 @@ Record meaningful project decisions only.
 - Use provider adapters for messaging, storage, and AI integrations where useful.
 - AI generation uses OpenRouter for free-model routing, with direct Gemini and Mock adapters available as controlled fallbacks.
 - WhatsApp text exports may be analyzed globally or for one selected contact; raw transcripts remain in memory only, while compact global style rules or contact-specific reply guidance are persisted.
+- Importing global or contact-specific style rules activates Personalized instruction mode; Raw mode remains an explicit testing mode that bypasses all personalization.
 
 ### Development
 - Keep the React application in `frontend/` and the Express application in `backend/`.
